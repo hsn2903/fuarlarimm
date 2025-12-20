@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../app/generated/prisma"
@@ -14,17 +8,194 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  posts         Post[]
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
+  id        String  @id @default(cuid())
   title     String
   content   String?
   published Boolean @default(false)
-  authorId  Int
+  authorId  String
   author    User    @relation(fields: [authorId], references: [id])
+}
+
+model Fair {
+  id               String  @id @default(cuid())
+  name             String
+  slug             String  @unique
+  description      String?
+  shortDescription String?
+  website          String?
+
+  // Location
+  venue   String?
+  city    String?
+  country String?
+
+  // Type
+  type     String?
+  category String?
+
+  // Images
+  logo       String?
+  coverImage String?
+
+  displayedProducts String?
+  tourNote          String?
+
+  // Features
+  isFeatured          Boolean @default(false)
+  isPublished         Boolean @default(false)
+  hasBanner           Boolean @default(false)
+  isSectoral          Boolean @default(false)
+  isDefiniteDeparture Boolean @default(false)
+
+  // Dates
+  dateString String?
+  startDate  DateTime?
+  endDate    DateTime?
+
+  // Services
+  extraServices    String?
+  includedServices String?
+
+  // Relations
+  hotel        Hotel?        @relation(fields: [hotelId], references: [id])
+  hotelId      String?
+  fairImages   FairImages?   @relation(fields: [fairImagesId], references: [id])
+  fairImagesId String?
+  tourImages   TourImages?   @relation(fields: [tourImagesId], references: [id])
+  tourImagesId String?
+  tourPrograms TourProgram[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("fairs")
+}
+
+model Hotel {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  address     String?
+  city        String?
+  country     String?
+  zip         String?
+  phone       String?
+  email       String?
+  images      String[] // Stored as JSON array
+
+  // Relations
+  fairs Fair[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([city])
+  @@index([country])
+  @@index([createdAt])
+  @@index([name, city])
+  @@index([name, country])
+  @@map("hotels")
+}
+
+model FairImages {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  images      String[] // Stored as JSON array
+
+  // Relations
+  fairs Fair[]
+
+  @@map("fair_images")
+}
+
+model TourImages {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  images      String[] // Stored as JSON array
+
+  // Relations
+  fairs Fair[]
+
+  @@map("tour_images")
+}
+
+model TourProgram {
+  id                String @id @default(cuid())
+  fairId            String
+  fair              Fair   @relation(fields: [fairId], references: [id])
+  programId         String @db.VarChar(50)
+  title1            String
+  title2            String
+  title3            String
+  singlePersonPrice String
+  twoPersonPrice    String
+  programs          Json // Stored as JSON array
+
+  @@map("tour_programs")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
