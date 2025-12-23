@@ -90,7 +90,7 @@ export async function createFair(data: z.infer<typeof fairSchema>) {
     // Create fair with nested relations
     const fair = await prisma.fair.create({
       data: {
-        fairId: validatedData.fairId,
+        id: validatedData.fairId,
         name: validatedData.name,
         slug: validatedData.slug,
         description: validatedData.description,
@@ -233,7 +233,7 @@ export async function updateFair(id: string, data: z.infer<typeof fairSchema>) {
     const fair = await prisma.fair.update({
       where: { id },
       data: {
-        fairId: validatedData.fairId,
+        id: validatedData.fairId,
         name: validatedData.name,
         slug: validatedData.slug,
         description: validatedData.description,
