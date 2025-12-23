@@ -13,6 +13,7 @@ function serializeFair(fair: any): Fair {
     ...fair,
     tourPrograms: fair.tourPrograms.map((tp: any) => ({
       id: tp.id,
+      programId: tp.programId,
       title1: tp.title1,
       title2: tp.title2,
       title3: tp.title3,

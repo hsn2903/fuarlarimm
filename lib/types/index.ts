@@ -6,6 +6,7 @@ export interface ProgramItem {
 
 export interface TourProgramType {
   id: string;
+  programId: string;
   title1: string;
   title2: string;
   title3: string;
