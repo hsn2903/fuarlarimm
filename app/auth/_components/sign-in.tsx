@@ -16,7 +16,7 @@ import { useState } from "react";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { authClient, signInWithGoogle } from "@/lib/auth-client";
 import z from "zod";
 import Link from "next/link";
 
@@ -113,6 +113,20 @@ export default function SignIn() {
             </Button>
           </div>
         </form>
+
+        {/* Sign in with google */}
+        <Button
+          type="button"
+          className="w-full"
+          disabled={loading}
+          onClick={() => signInWithGoogle()}
+        >
+          {loading ? (
+            <Loader2Icon size={16} className="animate-spin" />
+          ) : (
+            "Sign In with Google"
+          )}
+        </Button>
 
         <div className="flex items-center gap-2 mt-4 text-sm">
           <p>Don&apos;t have an account?</p>

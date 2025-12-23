@@ -5,3 +5,10 @@ export const authClient = createAuthClient({
 });
 
 export const { signIn, signUp, useSession } = createAuthClient();
+
+export const signInWithGoogle = async () => {
+  await authClient.signIn.social({
+    provider: "google",
+    callbackURL: "/dashboard",
+  });
+};
