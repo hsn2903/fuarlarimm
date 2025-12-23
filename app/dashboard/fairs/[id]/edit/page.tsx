@@ -13,11 +13,13 @@ interface EditFairPageProps {
 
 export default async function EditFairPage({ params }: EditFairPageProps) {
   const { id } = await params;
-  const fair = await getFairById(id);
+  const response = await getFairById(id);
 
-  if (!fair) {
+  if (!response.success || !response.data) {
     notFound();
   }
+
+  const fair = response.data;
 
   const handleSubmit = async (data: FairFormValues) => {
     "use server";
@@ -26,6 +28,7 @@ export default async function EditFairPage({ params }: EditFairPageProps) {
 
   const initialData: FairFormValues & { id: string } = {
     id: fair.id,
+    fairId: fair.fairId || fair.id,
     name: fair.name,
     slug: fair.slug,
     description: fair.description || "",
@@ -54,28 +57,62 @@ export default async function EditFairPage({ params }: EditFairPageProps) {
       : "",
     extraServices: fair.extraServices || "",
     includedServices: fair.includedServices || "",
-    hotel: fair.hotel || {
-      name: "",
-      description: "",
-      address: "",
-      city: "",
-      country: "",
-      zip: "",
-      phone: "",
-      email: "",
-      images: [],
-    },
-    fairImages: fair.fairImages || {
-      name: "",
-      description: "",
-      images: [],
-    },
-    tourImages: fair.tourImages || {
-      name: "",
-      description: "",
-      images: [],
-    },
-    tourPrograms: fair.tourPrograms || [],
+    hotel: fair.hotel
+      ? {
+          name: fair.hotel.name,
+          description: fair.hotel.description || undefined,
+          address: fair.hotel.address || undefined,
+          city: fair.hotel.city || undefined,
+          country: fair.hotel.country || undefined,
+          zip: fair.hotel.zip || undefined,
+          phone: fair.hotel.phone || undefined,
+          email: fair.hotel.email || undefined,
+          images: fair.hotel.images,
+        }
+      : {
+          name: "",
+          description: "",
+          address: "",
+          city: "",
+          country: "",
+          zip: "",
+          phone: "",
+          email: "",
+          images: [],
+        },
+    fairImages: fair.fairImages
+      ? {
+          name: fair.fairImages.name,
+          description: fair.fairImages.description || undefined,
+          images: fair.fairImages.images,
+        }
+      : {
+          name: "",
+          description: "",
+          images: [],
+        },
+    tourImages: fair.tourImages
+      ? {
+          name: fair.tourImages.name,
+          description: fair.tourImages.description || undefined,
+          images: fair.tourImages.images,
+        }
+      : {
+          name: "",
+          description: "",
+          images: [],
+        },
+    tourPrograms: fair.tourPrograms
+      ? fair.tourPrograms.map((tp) => ({
+          programId: tp.id,
+          title1: tp.title1,
+          title2: tp.title2,
+          title3: tp.title3,
+          singlePersonPrice: tp.singlePersonPrice,
+          twoPersonPrice: tp.twoPersonPrice,
+          programs: tp.programs,
+        }))
+      : [],
   };
 
   return (
