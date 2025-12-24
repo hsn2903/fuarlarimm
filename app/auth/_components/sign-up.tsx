@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -26,8 +24,6 @@ const signUpSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
 
-type SignUpSchema = z.infer<typeof signUpSchema>;
-
 export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -37,6 +33,19 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
+    // Validate password confirmation
+    if (password !== passwordConfirmation) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    // Validate schema
+    if (!signUpSchema.safeParse({ name, email, password }).success) {
+      toast.error("Invalid data");
+      return;
+    }
+
+    // Sign up
     await authClient.signUp.email({
       name,
       email,
@@ -69,7 +78,7 @@ export default function SignUp() {
       </CardHeader>
       <CardContent>
         <form action="">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4 w-full min-w-[400px]">
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
               <Input
@@ -116,20 +125,23 @@ export default function SignUp() {
               />
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-              onClick={handleSignUp}
-            >
-              {loading ? (
-                <Loader2Icon size={16} className="animate-spin" />
-              ) : (
-                "Create an account"
-              )}
-            </Button>
+            <div className="grid gap-2 col-span-2">
+              <Button
+                type="submit"
+                className="w-full cursor-pointer"
+                disabled={loading}
+                onClick={handleSignUp}
+              >
+                {loading ? (
+                  <Loader2Icon size={16} className="animate-spin" />
+                ) : (
+                  "Create an account"
+                )}
+              </Button>
+            </div>
           </div>
         </form>
+
         <div className="flex items-center gap-2 mt-4 text-sm">
           <p>Already have an account?</p>
           <Link

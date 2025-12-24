@@ -3,16 +3,19 @@ import { authClient } from "@/lib/auth-client";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
+  DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOutIcon, SettingsIcon } from "lucide-react";
 
 const UserDropdown = () => {
   const { data: session, isPending } = authClient.useSession();
 
+  // If session is pending, show loading state
   if (isPending) {
     return (
       <Avatar>
@@ -21,6 +24,7 @@ const UserDropdown = () => {
     );
   }
 
+  // If session is not found, show not signed in state
   if (!session) {
     return <div>Not signed in</div>;
   }
@@ -41,27 +45,28 @@ const UserDropdown = () => {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel className="flex flex-col gap-1">
-          <p className="font-medium">{session?.user?.name}</p>
-          <p className="text-xs text-muted-foreground">
-            {session?.user?.email}
-          </p>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="flex flex-col gap-1">
-          <p className="font-medium">Settings</p>
-          <p className="text-xs text-muted-foreground">Settings</p>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="flex flex-col gap-1">
-          <p className="font-medium">Logout</p>
-          <p className="text-xs text-muted-foreground">Logout</p>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="flex flex-col gap-1">
-          <Button onClick={() => authClient.signOut()}>Sign Out</Button>
-        </DropdownMenuLabel>
+      <DropdownMenuContent className="w-56" align="start">
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <p className="font-medium">{session?.user?.name}</p>
+            <p className="text-xs text-muted-foreground">
+              {session?.user?.email}
+            </p>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <SettingsIcon />
+            <p className="font-medium">Settings</p>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          {/* Sign out button */}
+          <DropdownMenuItem>
+            <Button variant="ghost" onClick={() => authClient.signOut()}>
+              <LogOutIcon />
+              Log out
+            </Button>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -9,22 +9,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  // social providers
+  // Social providers
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-  // caching session for 7 days
+  // Caching session for 7 days
   session: {
     cookieCache: {
       enabled: true,
       maxAge: 60 * 60 * 24 * 7,
     },
   },
-  // for nextjs server side
-  // it will cache the session in the cookie
+  // For nextjs server side
+  // It will cache the session in the cookie
   plugins: [nextCookies()],
   database: prismaAdapter(prisma, {
     provider: "postgresql", // or "mysql", "postgresql", ...etc

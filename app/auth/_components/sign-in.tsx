@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -16,16 +14,17 @@ import { useState } from "react";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { authClient, signInWithGoogle } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import z from "zod";
 import Link from "next/link";
+import SocialAuthButtons from "./social-auth-buttons";
+import Image from "next/image";
+import { APP_NAME } from "@/lib/constants";
 
 const signInSchema = z.object({
-  email: z.email().min(1, "Email is required"),
+  email: z.email().min(3, "Email must be at least 3 characters long"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
-
-type SignInSchema = z.infer<typeof signInSchema>;
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -33,16 +32,15 @@ export default function SignIn() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const validatedData = signInSchema.safeParse({
-    email,
-    password,
-  });
-
+  // Handle sign in
   const handleSignIn = async () => {
-    if (!validatedData.success) {
-      toast.error(validatedData.error.message);
+    setLoading(true);
+    // Validate data
+    if (!signInSchema.safeParse({ email, password }).success) {
+      toast.error("Invalid email or password");
       return;
     }
+    // Sign in
     await authClient.signIn.email({
       email,
       password,
@@ -62,19 +60,31 @@ export default function SignIn() {
         },
       },
     });
+    setLoading(false);
   };
 
   return (
     <Card className="z-50 rounded-md rounded-t-none max-w-md">
-      <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
-        <CardDescription className="text-xs md:text-sm">
-          Enter your information to create an account
+      <CardHeader className="space-y-4">
+        <div className="flex items-center justify-center">
+          <Link href="/">
+            <Image
+              priority={true}
+              src="/images/logo.png"
+              width={150}
+              height={150}
+              alt={`${APP_NAME} logo`}
+            />
+          </Link>
+        </div>
+        <CardTitle className="text-center">Giriş Yap</CardTitle>
+        <CardDescription className="text-center">
+          Giriş yapmak için bir yöntem seçin
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form action="">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -89,13 +99,13 @@ export default function SignIn() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Parola</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
+                placeholder="Parola"
               />
             </div>
 
@@ -108,33 +118,22 @@ export default function SignIn() {
               {loading ? (
                 <Loader2Icon size={16} className="animate-spin" />
               ) : (
-                "Sign In"
+                "Giriş Yap"
               )}
             </Button>
           </div>
         </form>
 
         {/* Sign in with google */}
-        <Button
-          type="button"
-          className="w-full"
-          disabled={loading}
-          onClick={() => signInWithGoogle()}
-        >
-          {loading ? (
-            <Loader2Icon size={16} className="animate-spin" />
-          ) : (
-            "Sign In with Google"
-          )}
-        </Button>
+        <SocialAuthButtons />
 
         <div className="flex items-center gap-2 mt-4 text-sm">
-          <p>Don&apos;t have an account?</p>
+          <p>Üyelik yok?</p>
           <Link
             href="/auth/sign-up"
             className="text-orange-400 hover:underline hover:underline-offset-2"
           >
-            Sign Up
+            Kayıt Ol
           </Link>
         </div>
       </CardContent>
